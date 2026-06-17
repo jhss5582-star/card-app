@@ -94,7 +94,8 @@ function normalizeDate(raw: string): string {
   return ''
 }
 
-function normalizeAmount(raw: string): number {
+function normalizeAmount(raw: string | undefined): number {
+  if (!raw) return 0
   return parseInt(raw.replace(/[,\s원]/g, ''), 10) || 0
 }
 
@@ -157,6 +158,9 @@ export async function parseFile(
     const dateRaw = row[dateCol]
     const merchant = row[merchantCol]?.trim()
     const amountRaw = row[amountCol]
+
+    // 합계 행 제외 ("총 합계", "합 계" 등)
+    if (row.some((c) => /총\s*합\s*계|합\s*계/.test(c))) { skipped++; continue }
 
     if (!dateRaw || !merchant) { skipped++; continue }
 
